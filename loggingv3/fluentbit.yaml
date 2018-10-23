@@ -1,0 +1,60 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: fluent-bit
+  namespace: logging
+  labels:
+    component: fluent-bit-logging
+    version: v1
+    kubernetes.io/cluster-service: "true"
+spec:
+  selector:
+    matchLabels:
+      component: fluent-bit-logging
+  template:
+    metadata:
+      labels:
+        component: fluent-bit-logging
+        version: v1
+        kubernetes.io/cluster-service: "true"
+    spec:
+      containers:
+      - name: fluent-bit
+        image: fluent/fluent-bit:0.12.17
+        #image: venood12/fluentd-kubernetes:fluentd-elasticsearch-geoip
+        env:
+        - name: FLUENT_ELASTICSEARCH_HOST
+          value: "elasticsearch" # the name of the previous es-svc.yml 
+        - name: FLUENT_ELASTICSEARCH_PORT
+          value: "9200" # the port of the previous es-svc.yml 
+        resources:
+          limits:
+            memory: 200Mi
+            cpu: 0.50
+          requests:
+            cpu: 0.25
+            memory: 200Mi
+        volumeMounts:
+        - name: varlog
+          mountPath: /var/log
+        - name: varlibdockercontainers
+          mountPath: /var/lib/docker/containers
+          readOnly: true
+        - name: fluent-bit-config
+          mountPath: /fluent-bit/etc/
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
+      - name: fluent-bit-config
+        configMap:
+          name: fluent-bit-config # name of the previously created ConfigMap
+      serviceAccountName: fluentd
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
