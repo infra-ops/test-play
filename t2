@@ -392,3 +392,11 @@
  1378  history > t.txt
  1379  sudo history > t.txt
  1380  history
+
+
+
+
+for i in {1..10};do ab -n 100 -c 2 https://10.233.75.226;done
+ab -n 1000 -c 2 http://10.233.68.224/
+for i in {1..1000};do curl http://10.233.119.203/;done
+curl 10.233.68.196:9200/_cat/indices
