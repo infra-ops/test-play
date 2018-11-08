@@ -1,0 +1,19 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    run: apache-efk
+  name: apache-efk
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: apache-efk
+  template:
+    metadata:
+      labels:
+        run: apache-efk
+    spec:
+      containers:
+      - image: httpd:2.4
+        name: apache-efk
